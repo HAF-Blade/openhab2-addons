@@ -192,10 +192,14 @@ public class TransmitterStick {
 
         void terminateUpdates() {
             terminated.set(true);
-            connection.close();
 
             // add a NONE command to make the thread exit from the call to take()
             cmdQueue.add(new Command(CommandType.NONE));
+            try {
+                join();
+            } catch (InterruptedException e) {
+                logger.debug("Interrupted while waiting for terminated worker", e);
+            }
         }
 
         void requestUpdate(int... channelIds) {
@@ -340,6 +344,7 @@ public class TransmitterStick {
                 }
             }
 
+            connection.close();
             logger.debug("worker finished.");
         }
 
